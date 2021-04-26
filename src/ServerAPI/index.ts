@@ -25,7 +25,7 @@ export class ServerAPI {
     }
     startMatch() {
         console.log(store.getters.match);
-        
+
         return this.query('startMatch', 'POST', {
             match: store.getters.match
         })
@@ -57,32 +57,36 @@ export class ServerAPI {
     private async searchServer() {
         const localIp = this.localIp;
         const address = `http://127.0.0.1:${this.port}`;
-        const { data } = await axios.get(`${address}/check`, {
-            timeout: 200
-        })
-        if (data === 'checked') {
+        
+        if (await this.checkReqeust(address)) {
             this.server = address
             this.startSendQueries();
             return
         }
         const searchStr = localIp.split('.').slice(0, -1).join('.') + '.'
         for (let i = 1; i < 255; i++) {
-            try {
                 const address = `http://${searchStr + i}:${this.port}`;
-                const { data } = await axios.get(`${address}/check`, {
-                    timeout: 200
-                })
-                if (data === 'checked') {
+               if ( await this.checkReqeust(address)) {
                     this.server = address
                     this.startSendQueries();
                     return
                 }
-
-            } catch (error) {
-                continue;
-            }
         }
         this.rejectSaveQueries()
+    }
+    private async checkReqeust(address: string) {
+        try {
+            const { data } = await axios.get(`${address}/check`, {
+                timeout: 200
+            })
+            if (data === 'checked') {
+                return true;
+
+            }
+        } catch (error) {
+            return false
+        }
+        return false;
     }
     rejectSaveQueries() {
         while (this.queries.length > 0) {
