@@ -1,21 +1,26 @@
 import Player from 'boccia-types/lib/Player'
-import {Match} from 'boccia-types/lib/match'
-import {GClass, gclass} from 'boccia-types/lib/GClass'
+import { Match } from 'boccia-types/lib/match'
+import { GClass, gclass } from 'boccia-types/lib/GClass'
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { ipcRenderer, systemPreferences } from "electron";
+import { ipcRenderer } from "electron";
+import { TimerTypes } from "./TimerTypes";
+import { TIMECOOFS } from './TIMECOOFS'
+
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
     players: <[Player | null, Player | null]>[null, null],
-    gclass: <gclass> <unknown>GClass.classes[0],
+    gclass: <gclass>GClass.classes[0],
     times: <[number[], number[]]>[[0, 0, 0, 0], [0, 0, 0, 0]],
     score: <[number[], number[]]>[[0, 0, 0, 0], [0, 0, 0, 0]],
     referee: '',
     refereeTimer: '',
-
     cortId: 1,
+    end: 0,
+    oneMinuteTimer: 0,
+    tenMinutesTimer: 0
   },
   getters: {
     players: state => {
@@ -35,7 +40,7 @@ export default new Vuex.Store({
         })
     },
     match: state => {
-      const match : Match = {
+      const match: Match = {
         cortId: state.cortId,
         players: [state.players[0]!.id, state.players[1]!.id],
         gclass: state.gclass,
@@ -44,6 +49,18 @@ export default new Vuex.Store({
         refereeTimer: state.refereeTimer
       };
       return match
+    },
+    timers: ({ times, tenMinutesTimer, oneMinuteTimer, gclass }) => {
+      return {
+        times: times.map((playerTimes) => {
+          return playerTimes.map((num) => {
+
+            return TIMECOOFS[gclass] - num;
+          })
+        }),
+        oneMinuteTimer: 60 - oneMinuteTimer,
+        tenMinutesTimer: 600 - tenMinutesTimer,
+      }
     }
   },
   mutations: {
@@ -72,12 +89,30 @@ export default new Vuex.Store({
     setRefereeTimer(state, referee: string) {
       state.refereeTimer = referee;
     },
-    setCort(state, cortId:number)
-    {
+    setCort(state, cortId: number) {
       console.log(cortId);
-      
-      state.cortId=cortId
+
+      state.cortId = cortId
+    },
+    setTimerValue(state, { value, typeTimer }: { value: number, typeTimer: TimerTypes }) {
+      switch (typeTimer) {
+        case "warmup":
+          state.oneMinuteTimer = value;
+          break;
+        case 'technical':
+          state.tenMinutesTimer = value;
+          break;
+        case 'red':
+          state.times[0][state.end] = value;
+          break;
+        case 'blue':
+          state.times[1][state.end] = value;
+          break;
+        case 'takingBalls':
+          state.oneMinuteTimer = value;
+      }
     }
+
   },
   actions: {
     setPlayers({ commit, state }, players: [Player, Player]) {
@@ -96,7 +131,11 @@ export default new Vuex.Store({
       ipcRenderer.send('asynchronous-message', 'score', getters.totalScore)
 
     },
+    setTimerValue({ commit, getters }, { value, typeTimer }: { value: number, typeTimer: TimerTypes }) {
+      commit('setTimerValue', { value, typeTimer })
+      ipcRenderer.send('asynchronous-message', 'timer', { timers: getters.timers, typeTimer })
 
+    },
     reset({ commit, state }) {
       this.dispatch('setPlayers', [null, null])
       commit('setGClass', null)

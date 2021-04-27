@@ -1,0 +1,1 @@
+export type TimerTypes = "warmup" | "technical" | "red" | "blue" | "takingBalls"

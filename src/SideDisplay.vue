@@ -34,6 +34,7 @@
 <script lang="ts">
 import { ipcRenderer } from "electron";
 import { Component, Vue } from "vue-property-decorator";
+import { TimerTypes } from "./store/TimerTypes";
 
 @Component({})
 export default class SideDisplay extends Vue {
@@ -50,14 +51,40 @@ export default class SideDisplay extends Vue {
   bname = "";
   mounted() {
     ipcRenderer.on("asynchronous-message", (event, type, data) => {
-
       if (type === "players") {
         this.rname = data[0] != null ? data[0].fullName : "";
-        this.bname = data[1] != null  ? data[1].fullName : "";
+        this.bname = data[1] != null ? data[1].fullName : "";
       }
       if (type === "score") {
         this.rscore = data[0];
         this.bscore = data[1];
+      }
+      if (type === "timer") {
+        const typeTimer = <TimerTypes>data.typeTimer;
+        const timers = data.timers;
+        switch (typeTimer) {
+          case "takingBalls":
+            this.soloTime = timers.oneMinuteTimer;
+            this.solo = true;
+            break;
+
+          case "warmup":
+            this.soloTime = timers.oneMinuteTimer;
+            this.solo = true;
+            break;
+          case "technical":
+            this.soloTime = timers.tenMinutesTimer;
+            this.solo = true;
+            break;
+          case "red":
+            this.rtime = timers.times[0];
+            this.solo = false;
+            break;
+          case "blue":
+            this.btime = timers.times[1];
+            this.solo = false;
+            break;
+        }
       }
     });
   }

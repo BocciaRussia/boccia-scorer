@@ -72,6 +72,7 @@ import { ServerAPI } from "../ServerAPI";
 import { Component, Vue } from "vue-property-decorator";
 import Player from "boccia-types/lib/Player";
 import { ipcRenderer } from "electron";
+import { GClass, gclass } from "boccia-types/lib/GClass";
 
 @Component({
   components: {},
@@ -79,10 +80,10 @@ import { ipcRenderer } from "electron";
 export default class Home extends Vue {
   allPlayers: Player[] = [];
   players: [Player | null, Player | null] = this.$store.state.players;
-  get gameclass(): "BC1" | "BC2" | "BC3" | "BC4" | null {
+  get gameclass(): gclass | null {
     return this.$store.state.gclass;
   }
-  set gameclass(value: "BC1" | "BC2" | "BC3" | "BC4" | null) {
+  set gameclass(value: gclass| null) {
     this.$store.commit("setGClass", value);
   }
   get referee() {
@@ -121,7 +122,7 @@ export default class Home extends Vue {
   }
 
   get itemClasses() {
-    return ["BC1", "BC2", "BC3", "BC4"];
+    return GClass.classes
   }
   mounted() {
     ServerAPI.instance
