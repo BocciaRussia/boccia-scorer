@@ -12,6 +12,11 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
+
+        <v-footer>
+                <h1 class="player-label blue">{{$store.getters.totalScore[1]}}</h1>
+                <h1 class="player-label red">{{$store.getters.totalScore[0]}}</h1>
+        </v-footer>
     </v-navigation-drawer>
 
     <v-app-bar app>
@@ -41,3 +46,10 @@ export default class App extends Vue {
   })
 }
 </script>
+<style>
+/* Global CSS */
+.player-label {
+  width: 50%;
+  text-align: center;
+}
+</style>

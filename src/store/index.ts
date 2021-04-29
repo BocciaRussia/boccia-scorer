@@ -18,9 +18,12 @@ export default new Vuex.Store({
     referee: '',
     refereeTimer: '',
     cortId: 1,
-    end: 0,
+    end: <number | 'tie'>0,
     oneMinuteTimer: 0,
-    tenMinutesTimer: 0
+    tenMinutesTimer: 0,
+    group: 'A',
+    groupStep: true,
+    semi: 8
   },
   getters: {
     players: state => {
@@ -46,7 +49,11 @@ export default new Vuex.Store({
         gclass: state.gclass,
         score: state.score,
         referee: state.referee,
-        refereeTimer: state.refereeTimer
+        refereeTimer: state.refereeTimer,
+        end: state.end,
+        group: state.group,
+        groupStep: state.groupStep,
+        semi: state.semi.toString()
       };
       return match
     },
@@ -61,6 +68,18 @@ export default new Vuex.Store({
         oneMinuteTimer: 60 - oneMinuteTimer,
         tenMinutesTimer: 600 - tenMinutesTimer,
       }
+    },
+    endTime: ({ gclass }) => {
+      return TIMECOOFS[gclass]
+    },
+    endTimes: ({ times, end }) => {
+
+      if (end != 'tie')
+        return [times[0][end], times[1][end]]
+    },
+    endScores: ({ end, score }) => {
+      if (end != 'tie')
+        return [score[0][end], score[1][end]]
     }
   },
   mutations: {
@@ -69,19 +88,29 @@ export default new Vuex.Store({
       state.players[1] = players[1];
     },
     setGClass(state, gclass: gclass) {
+
       state.gclass = gclass
     },
     resetScore(state) {
-      state.score = [[], []]
-      for (let i = 0; i < 4; i++) {
-        state.score[0][i] = 0;
-        state.score[1][i] = 0;
+      // state.score = [[], []]
+      for (let i = 0; i < (state.gclass === "ТBC1/BC2" ? 6 : 4); i++) {
+        Vue.set(state.score[0], i, 0);
+        Vue.set(state.score[1], i, 0);
       }
     },
-    incScore(state, data: { end: number, score: [number, number] }) {
+    resetTimer(state) {
+      // state.score = [[], []]
+      for (let i = 0; i < (state.gclass === "ТBC1/BC2" ? 6 : 4); i++) {
+        Vue.set(state.times[0], i, 0);
+        Vue.set(state.times[1], i, 0);
+      }
+      state.oneMinuteTimer = 0;
+      state.tenMinutesTimer = 0;
+    },
+    setScore(state, data: { end: number, playerId: 0 | 1, value: number }) {
+      Vue.set(state.score[data.playerId], state.end, data.value)
 
-      state.score[0][data.end] += data.score[0]
-      state.score[1][data.end] += data.score[1]
+
     },
     setReferee(state, referee: string) {
       state.referee = referee;
@@ -95,6 +124,7 @@ export default new Vuex.Store({
       state.cortId = cortId
     },
     setTimerValue(state, { value, typeTimer }: { value: number, typeTimer: TimerTypes }) {
+
       switch (typeTimer) {
         case "warmup":
           state.oneMinuteTimer = value;
@@ -103,14 +133,32 @@ export default new Vuex.Store({
           state.tenMinutesTimer = value;
           break;
         case 'red':
-          state.times[0][state.end] = value;
+          console.log(value);
+
+          if (state.end != 'tie')
+            Vue.set(state.times[0], state.end, value)
           break;
         case 'blue':
-          state.times[1][state.end] = value;
+          if (state.end != 'tie') {
+            Vue.set(state.times[1], state.end, value)
+
+          }
           break;
         case 'takingBalls':
           state.oneMinuteTimer = value;
       }
+    },
+    setEnd(state, end: number | 'tie') {
+      state.end = end;
+    },
+    setGroup(state, group: string) {
+      state.group = group;
+    },
+    setGroupStep(state, groupStep: boolean) {
+      state.groupStep = groupStep;
+    },
+    setSemi(state, semi: number) {
+      state.semi = semi;
     }
 
   },
@@ -126,8 +174,14 @@ export default new Vuex.Store({
       commit('resetScore');
       ipcRenderer.send('asynchronous-message', 'score', getters.totalScore)
     },
-    incScore({ commit, getters }, data: { end: number, score: [number, number] }) {
-      commit('incScore', data)
+
+    resetTimer({ commit, getters }) {
+      commit('resetTimer');
+      ipcRenderer.send('asynchronous-message', 'timer', { timers: getters.timers, typeTimer: 'warmup' })
+
+    },
+    setScore({ commit, getters }, data: { end: number, score: [number, number] }) {
+      commit('setScore', data)
       ipcRenderer.send('asynchronous-message', 'score', getters.totalScore)
 
     },
@@ -136,12 +190,22 @@ export default new Vuex.Store({
       ipcRenderer.send('asynchronous-message', 'timer', { timers: getters.timers, typeTimer })
 
     },
-    reset({ commit, state }) {
-      this.dispatch('setPlayers', [null, null])
+    setEnd({ commit, state }, end: number | 'tie') {
+      commit('setEnd', end)
+      ipcRenderer.send('asynchronous-message', 'end', state.end)
+
+    },
+    reset({ commit, state, dispatch }) {
+      dispatch('setPlayers', [null, null])
       commit('setGClass', null)
-      commit('setRefereee', '')
-      commit('setRefereeeTimer', '')
-      this.dispatch('resetScore')
+      commit('setReferee', '')
+      commit('setRefereeTimer', '')
+      dispatch('resetScore')
+      dispatch('resetTimer')
+      dispatch('setEnd', 0);
+      commit('setGroup', 'A')
+      commit('setGroupStep', true)
+      commit('setSemi', 8)
     }
   },
   modules: {

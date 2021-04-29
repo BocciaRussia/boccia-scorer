@@ -8,6 +8,7 @@ import store from "@/store";
 let instance: ServerAPI | null = null;
 
 export class ServerAPI {
+    
     server: string | null = null
     port = 2007;
     queries: Query[] = []
@@ -31,7 +32,12 @@ export class ServerAPI {
         })
 
     }
+    sendEnd() {
 
+        return this.query('sendEnd', 'POST', {
+            match: store.getters.match
+        })
+    }
     private query(endPoint: string, method: 'GET' | 'POST', params?: QueryParams) {
         return new Promise((resolve, reject) => {
 

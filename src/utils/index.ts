@@ -9,5 +9,9 @@ export default {
         if (seconds < 10) secs = "0" + seconds;
         return mins + ":" + secs
 
+    },
+    shortName(name:string){
+        const parts = name.trim().split(' ');
+        return `${parts.shift()} ${parts.map(n=>n[0]+'.').join(' ')}`
     }
 }

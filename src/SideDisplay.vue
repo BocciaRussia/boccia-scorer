@@ -31,6 +31,8 @@
     </div>
   </main>
 </template>
+
+
 <script lang="ts">
 import { ipcRenderer } from "electron";
 import { Component, Vue } from "vue-property-decorator";
@@ -77,14 +79,20 @@ export default class SideDisplay extends Vue {
             this.solo = true;
             break;
           case "red":
-            this.rtime = timers.times[0];
+            this.btime = timers.times[1][this.end];
+            this.rtime = timers.times[0][this.end];
+
             this.solo = false;
             break;
           case "blue":
-            this.btime = timers.times[1];
+            this.rtime = timers.times[0][this.end];
+            this.btime = timers.times[1][this.end];
             this.solo = false;
             break;
         }
+      }
+      if (type === "end") {
+        this.end = data;
       }
     });
   }
