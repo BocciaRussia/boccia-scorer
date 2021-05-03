@@ -42,7 +42,7 @@
 
                 <v-flex v-else>
                   <h3>Победа</h3>
-                  <!-- <input type="checkbox" v-model="match.tiebreak.bwin"> -->
+                  <input type="checkbox" v-model="bscore" />
                 </v-flex>
                 <v-text-field placeholder="Нарушения синих" />
               </v-container>
@@ -70,7 +70,7 @@
 
                 <v-flex v-else>
                   <h3>Победа</h3>
-                  <!-- <input type="checkbox" v-model="match.tiebreak.bwin"> -->
+                  <input type="checkbox" v-model="rscore" />
                 </v-flex>
                 <v-text-field placeholder="Нарушения синих" />
               </v-container>
@@ -83,7 +83,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            v-if="end < ends.length "
+            v-if="end < ends.length"
             @click="sendEnd"
             :disabled="!isEnteredScore"
             >Отправить энд.</v-btn
@@ -110,7 +110,9 @@ import Timer from "../components/Timer.vue";
   },
 })
 export default class Ends extends Vue {
-  tiebreak = false;
+  get tiebreak() {
+    return this.end === "tie";
+  }
   get takingBalls() {
     return this.$store.state.oneMinuteTimer;
   }
@@ -137,27 +139,37 @@ export default class Ends extends Vue {
     return this.$store.getters.endScores[0];
   }
   set rscore(value: number) {
-    this.$store.dispatch("setScore", { playerId: 0, value });
+    this.$store.dispatch("setScore", { end: this.end, playerId: 0, value });
   }
   get bscore() {
     return this.$store.getters.endScores[1];
   }
   set bscore(value: number) {
-    this.$store.dispatch("setScore", { playerId: 1, value });
+    this.$store.dispatch("setScore", { end: this.end, playerId: 1, value });
   }
-  get end(): number {
-    return this.$store.state.end + 1;
+  get end(): number | "tie" {
+    return this.$store.state.end === "tie" ? "tie" : this.$store.state.end + 1;
   }
-  set end(value) {
+  set end(value: number | "tie") {
     this.takingBalls = 0;
-    this.$store.dispatch("setEnd", value - 1);
+
+    this.$store.dispatch("setEnd", value == "tie" ? value : value - 1);
   }
   get ends() {
-    return this.$store.state.gclass === GClass.classes[6]
-      ? [1, 2, 3, 4, 5, 6]
-      : [1, 2, 3, 4];
+    const ends: (number | "tie")[] =
+      this.$store.state.gclass === GClass.classes[6]
+        ? [1, 2, 3, 4, 5, 6]
+        : [1, 2, 3, 4];
+    if (
+      this.$store.getters.totalScore[0] === this.$store.getters.totalScore[1]
+    ) {
+      ends.push("tie");
+    }
+    return ends;
   }
   get isEnteredScore() {
+    console.log(this.rscore, this.bscore);
+
     return this.rscore > 0 || this.bscore > 0;
   }
   switchToTimers() {
@@ -174,7 +186,13 @@ export default class Ends extends Vue {
     });
     if (confirm) {
       ServerAPI.instance.sendEnd();
-      this.end++;
+      if (
+        this.end < (this.$store.state.gclass === "ТBC1/BC2" ? 6 : 4) &&
+        this.end != "tie"
+      )
+        this.end++;
+      if (this.end != "tie" && this.ends[this.end + 1] === "tie")
+        this.end = "tie";
     }
   }
 }

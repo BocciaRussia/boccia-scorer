@@ -14,6 +14,8 @@ export default new Vuex.Store({
     players: <[Player | null, Player | null]>[null, null],
     gclass: <gclass>GClass.classes[0],
     times: <[number[], number[]]>[[0, 0, 0, 0], [0, 0, 0, 0]],
+    tieTimes: [0, 0],
+    tieScore: [false, false],
     score: <[number[], number[]]>[[0, 0, 0, 0], [0, 0, 0, 0]],
     referee: '',
     refereeTimer: '',
@@ -72,14 +74,18 @@ export default new Vuex.Store({
     endTime: ({ gclass }) => {
       return TIMECOOFS[gclass]
     },
-    endTimes: ({ times, end }) => {
+    endTimes: ({ times, end, tieTimes }) => {
 
       if (end != 'tie')
-        return [times[0][end], times[1][end]]
+        return [times[0][end], times[1][end]];
+      else
+        return [tieTimes[0], tieTimes[1]]
     },
-    endScores: ({ end, score }) => {
+    endScores: ({ end, score, tieScore }) => {
       if (end != 'tie')
         return [score[0][end], score[1][end]]
+      else
+        return [tieScore[0], tieScore[1]]
     }
   },
   mutations: {
@@ -97,6 +103,7 @@ export default new Vuex.Store({
         Vue.set(state.score[0], i, 0);
         Vue.set(state.score[1], i, 0);
       }
+      state.tieScore = [false, false]
     },
     resetTimer(state) {
       // state.score = [[], []]
@@ -106,10 +113,16 @@ export default new Vuex.Store({
       }
       state.oneMinuteTimer = 0;
       state.tenMinutesTimer = 0;
+      state.tieTimes = [0, 0]
     },
-    setScore(state, data: { end: number, playerId: 0 | 1, value: number }) {
-      Vue.set(state.score[data.playerId], state.end, data.value)
+    setScore(state, data: { end: number | 'tie', playerId: 0 | 1, value: number }) {
 
+
+      if (data.end != 'tie')
+        Vue.set(state.score[data.playerId], state.end, data.value)
+      else
+        Vue.set(state.tieScore, data.playerId, !!data.value)
+      console.log(data.value, data.end, state.tieScore[data.playerId]);
 
     },
     setReferee(state, referee: string) {
@@ -119,8 +132,6 @@ export default new Vuex.Store({
       state.refereeTimer = referee;
     },
     setCort(state, cortId: number) {
-      console.log(cortId);
-
       state.cortId = cortId
     },
     setTimerValue(state, { value, typeTimer }: { value: number, typeTimer: TimerTypes }) {
@@ -133,14 +144,17 @@ export default new Vuex.Store({
           state.tenMinutesTimer = value;
           break;
         case 'red':
-          console.log(value);
-
           if (state.end != 'tie')
             Vue.set(state.times[0], state.end, value)
+          else
+            Vue.set(state.tieTimes, 0, value)
           break;
         case 'blue':
           if (state.end != 'tie') {
             Vue.set(state.times[1], state.end, value)
+
+          } else {
+            Vue.set(state.tieTimes, 1, value)
 
           }
           break;

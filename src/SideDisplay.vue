@@ -92,7 +92,8 @@ export default class SideDisplay extends Vue {
         }
       }
       if (type === "end") {
-        this.end = data;
+        if (data === "tie") this.tiebreak = true;
+        else this.end = data;
       }
     });
   }

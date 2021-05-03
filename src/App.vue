@@ -14,8 +14,8 @@
       </v-list>
 
         <v-footer>
-                <h1 class="player-label blue">{{$store.getters.totalScore[1]}}</h1>
-                <h1 class="player-label red">{{$store.getters.totalScore[0]}}</h1>
+                <h1 class="player-label blue">{{$store.getters.totalScore[1]+($store.state.tieScore[1]?'T':'')}}</h1>
+                <h1 class="player-label red">{{$store.getters.totalScore[0]+($store.state.tieScore[0]?'T':'')}}</h1>
         </v-footer>
     </v-navigation-drawer>
 
