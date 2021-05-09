@@ -1,5 +1,8 @@
+const fs = require('fs')
 const icongen = require('icon-gen')
-
+if(!fs.existsSync(__dirname+'/build')) {
+    fs.mkdirSync(__dirname+'/build')
+}
 icongen('./src/assets/icon.svg', './build', {
     report: true,
     ico: {
