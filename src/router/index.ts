@@ -3,6 +3,7 @@ import VueRouter, { RouteConfig } from 'vue-router'
 import Home from '../views/Home.vue'
 import Warmup from '../views/Warmup.vue'
 import Ends from '../views/Ends.vue'
+import Finish from '../views/Finish.vue'
 
 Vue.use(VueRouter)
 
@@ -21,6 +22,11 @@ const routes: Array<RouteConfig> = [
     path: '/ends',
     name: 'Энды',
     component: Ends
+  },
+  {
+    path: '/finish',
+    name: 'Финиш',
+    component: Finish
   }
 ]
 

@@ -8,10 +8,10 @@ import store from "@/store";
 let instance: ServerAPI | null = null;
 
 export class ServerAPI {
-    
-    server: string | null = null
-    port = 2007;
-    queries: Query[] = []
+
+    private server: string | null = null
+    private port = 2007;
+    private queries: Query[] = []
     static get instance() {
         if (instance == null) {
             instance = new ServerAPI
@@ -35,6 +35,12 @@ export class ServerAPI {
     sendEnd() {
 
         return this.query('sendEnd', 'POST', {
+            match: store.getters.match
+        })
+    }
+    sendMatch() {
+
+        return this.query('sendMatch', 'POST', {
             match: store.getters.match
         })
     }
@@ -63,7 +69,7 @@ export class ServerAPI {
     private async searchServer() {
         const localIp = this.localIp;
         const address = `http://127.0.0.1:${this.port}`;
-        
+
         if (await this.checkReqeust(address)) {
             this.server = address
             this.startSendQueries();
@@ -71,12 +77,12 @@ export class ServerAPI {
         }
         const searchStr = localIp.split('.').slice(0, -1).join('.') + '.'
         for (let i = 1; i < 255; i++) {
-                const address = `http://${searchStr + i}:${this.port}`;
-               if ( await this.checkReqeust(address)) {
-                    this.server = address
-                    this.startSendQueries();
-                    return
-                }
+            const address = `http://${searchStr + i}:${this.port}`;
+            if (await this.checkReqeust(address)) {
+                this.server = address
+                this.startSendQueries();
+                return
+            }
         }
         this.rejectSaveQueries()
     }

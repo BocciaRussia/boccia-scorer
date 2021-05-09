@@ -45,15 +45,20 @@ export default new Vuex.Store({
         })
     },
     match: state => {
+      const score = state.score.map((arr,index)=>({playyerIndex: <0|1> index, score:arr}));
+      const time = state.times.map((arr,index)=>({playyerIndex: <0|1> index, time:arr}));
+
       const match: Match = {
         cortId: state.cortId,
         players: [state.players[0]!.id, state.players[1]!.id],
         gclass: state.gclass,
-        score: state.score,
+        score: [score[0], score[1]],
         referee: state.referee,
         refereeTimer: state.refereeTimer,
         end: state.end,
+        time: [time[0], time[1]],
         group: state.group,
+        tieScore: [state.tieScore[0], state.tieScore[1]],
         groupStep: state.groupStep,
         semi: state.semi.toString()
       };
@@ -220,6 +225,11 @@ export default new Vuex.Store({
       commit('setGroup', 'A')
       commit('setGroupStep', true)
       commit('setSemi', 8)
+      ipcRenderer.send('asynchronous-message', 'reset')
+
+    },
+    openFinish({ getters }) {
+      ipcRenderer.send('asynchronous-message', 'protocol', getters.match)
     }
   },
   modules: {

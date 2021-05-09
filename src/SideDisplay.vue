@@ -1,44 +1,55 @@
 <template>
   <main>
-    <div v-if="solo">
-      <section class="solo">
-        <h1 class="time">{{ $utils.secondsToString(soloTime) }}</h1>
-      </section>
+    <div v-if="protocol" class="protocol">
+      <protocol :match="protocol"></protocol>
     </div>
-    <div v-else>
-      <section>
-        <h6>{{ rname }}</h6>
-        <h1>{{ rscore }}</h1>
-        <h1 class="time">{{ $utils.secondsToString(rtime) }}</h1>
-      </section>
-      <div class="ends">
-        <ul>
-          <li v-if="tiebreak" class="tiebreak">T</li>
-          <li
-            v-else
-            v-for="n in maxEnds"
-            :class="{ pasted: end > n - 1, current: end == n - 1 }"
-            :key="n"
-          ></li>
-        </ul>
+    <div v-else class="main">
+      <div v-if="solo">
+        <section class="solo">
+          <h1 class="time">{{ $utils.secondsToString(soloTime) }}</h1>
+        </section>
       </div>
-      <section class="blue">
-        <h6>{{ bname }}</h6>
+      <div v-else>
+        <section>
+          <h6>{{ rname }}</h6>
+          <h1>{{ rscore }}</h1>
+          <h1 class="time">{{ $utils.secondsToString(rtime) }}</h1>
+        </section>
+        <div class="ends">
+          <ul>
+            <li v-if="tiebreak" class="tiebreak">T</li>
+            <li
+              v-else
+              v-for="n in maxEnds"
+              :class="{ pasted: end > n - 1, current: end == n - 1 }"
+              :key="n"
+            ></li>
+          </ul>
+        </div>
+        <section class="blue">
+          <h6>{{ bname }}</h6>
 
-        <h1>{{ bscore }}</h1>
-        <h1 class="time">{{ $utils.secondsToString(btime) }}</h1>
-      </section>
+          <h1>{{ bscore }}</h1>
+          <h1 class="time">{{ $utils.secondsToString(btime) }}</h1>
+        </section>
+      </div>
     </div>
   </main>
 </template>
 
 
 <script lang="ts">
+import { Match } from "boccia-types/lib/Match";
 import { ipcRenderer } from "electron";
 import { Component, Vue } from "vue-property-decorator";
 import { TimerTypes } from "./store/TimerTypes";
+import Protocol from "./components/Protocol.vue";
 
-@Component({})
+@Component({
+  components: {
+    Protocol,
+  },
+})
 export default class SideDisplay extends Vue {
   rscore = 0;
   bscore = 0;
@@ -51,6 +62,7 @@ export default class SideDisplay extends Vue {
   tiebreak = false;
   rname = "";
   bname = "";
+  protocol: Match | null = null;
   mounted() {
     ipcRenderer.on("asynchronous-message", (event, type, data) => {
       if (type === "players") {
@@ -60,40 +72,24 @@ export default class SideDisplay extends Vue {
       if (type === "score") {
         this.rscore = data[0];
         this.bscore = data[1];
+        ``;
+      }
+
+      if (type === "end") {
+        if (data === "tie") this.tiebreak = true;
+        else this.end = data;
       }
       if (type === "timer") {
         const typeTimer = <TimerTypes>data.typeTimer;
         const timers = data.timers;
-        switch (typeTimer) {
-          case "takingBalls":
-            this.soloTime = timers.oneMinuteTimer;
-            this.solo = true;
-            break;
-
-          case "warmup":
-            this.soloTime = timers.oneMinuteTimer;
-            this.solo = true;
-            break;
-          case "technical":
-            this.soloTime = timers.tenMinutesTimer;
-            this.solo = true;
-            break;
-          case "red":
-            this.btime = timers.times[1][this.end];
-            this.rtime = timers.times[0][this.end];
-
-            this.solo = false;
-            break;
-          case "blue":
-            this.rtime = timers.times[0][this.end];
-            this.btime = timers.times[1][this.end];
-            this.solo = false;
-            break;
-        }
       }
-      if (type === "end") {
-        if (data === "tie") this.tiebreak = true;
-        else this.end = data;
+      if (type === "protocol") {
+        console.log(data);
+
+        this.protocol = <Match>data;
+      }
+      if (type === "reset") {
+        this.protocol = null;
       }
     });
   }
@@ -101,8 +97,11 @@ export default class SideDisplay extends Vue {
 </script>
 
 <style scoped>
-main {
+.main {
   color: #fff;
+}
+.protocol{
+  font-size: 4vh;
 }
 
 section {
