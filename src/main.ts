@@ -6,10 +6,10 @@ import store from './store'
 import vuetify from './plugins/vuetify';
 import utils from './utils'
 
-Vue.config.productionTip = false 
+Vue.config.productionTip = false
 Vue.prototype.$utils = utils;
 
-const second = window.location.search === '?true'
+const second = window.process.argv[window.process.argv.length - 1] === '1'
 
 
 import VuetifyDialog from 'vuetify-dialog'
