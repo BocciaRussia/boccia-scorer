@@ -163,8 +163,8 @@ export default class Ends extends Vue {
     if (
       this.$store.getters.totalScore[0] === this.$store.getters.totalScore[1]
     ) {
-      ends.push("tie");
-    }
+      ends[ends.length] = ("tie");
+    } 
     return ends;
   }
   get isEnteredScore() {
@@ -191,7 +191,7 @@ export default class Ends extends Vue {
         this.end != "tie"
       )
         this.end++;
-      if (this.end != "tie" && this.ends[this.end + 1] === "tie")
+      if (this.end != "tie" && this.ends[this.end ] === "tie")
         this.end = "tie";
     }
   }
