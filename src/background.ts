@@ -3,7 +3,7 @@
 import { app, protocol, BrowserWindow, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
-import { } from "./ServerAPI/searchIp";
+// import { } from "./ServerAPI/searchIp";
 // import { ip } from "./ServerAPI/searchIp";
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
