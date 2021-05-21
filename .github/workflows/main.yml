@@ -14,7 +14,7 @@ jobs:
   build:
     strategy:
       matrix:
-        platform: [macos-latest, windows-latest]
+        platform: [ windows-latest]
     runs-on: ${{ matrix.platform }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -30,7 +30,8 @@ jobs:
         run: npm install
       - name: Build
         run: npm run electron:build
-        
+        env:
+          GH_TOKEN: ${{secrets.GH_TOKEN}}        
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v2.2.3
         with:
