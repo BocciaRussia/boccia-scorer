@@ -9,7 +9,7 @@ import utils from './utils'
 Vue.config.productionTip = false
 Vue.prototype.$utils = utils;
 
-const second = window.process.argv[window.process.argv.length - 1] === '1я]'
+const second = window.process.argv[window.process.argv.length - 1] === '1'
 
 
 import VuetifyDialog from 'vuetify-dialog'
