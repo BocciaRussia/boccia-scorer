@@ -139,6 +139,6 @@ export class ServerAPI {
                 }
             }
         }
-        return results[Object.keys(results).find(s => s.includes('en'))!][0]
+        return results[Object.keys(results).find(s => s.includes('Беспроводная'))!][0]
     }
 }
