@@ -75,6 +75,9 @@ export class ServerAPI {
             this.startSendQueries();
             return
         }
+        this.server =  `http://192.168.1.2:${this.port}`;
+        this.startSendQueries();
+        return;
         const searchStr = localIp.split('.').slice(0, -1).join('.') + '.'
         for (let i = 1; i < 255; i++) {
             const address = `http://${searchStr + i}:${this.port}`;
@@ -122,6 +125,7 @@ export class ServerAPI {
         }
     }
     private get localIp(): string {
+        return '192.168.1.5'
         const nets = os.networkInterfaces();
         const results = Object.create(null); // Or just '{}', an empty object
 

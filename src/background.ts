@@ -33,7 +33,7 @@ async function createWindow(sideDisplay: boolean) {
     }
   })
   windows.push(win)
-
+  win.on('close', ()=>process.exit(0))
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     await win.loadURL((process.env.WEBPACK_DEV_SERVER_URL as string) + ('?' + sideDisplay))

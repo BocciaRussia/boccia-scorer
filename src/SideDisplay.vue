@@ -56,7 +56,7 @@ export default class SideDisplay extends Vue {
   rtime = 0;
   btime = 0;
   soloTime = 0;
-  solo = false;
+  solo = true;
   end = 0;
   maxEnds = 4;
   tiebreak = false;
@@ -72,7 +72,6 @@ export default class SideDisplay extends Vue {
       if (type === "score") {
         this.rscore = data[0];
         this.bscore = data[1];
-        ``;
       }
 
       if (type === "end") {
@@ -82,6 +81,17 @@ export default class SideDisplay extends Vue {
       if (type === "timer") {
         const typeTimer = <TimerTypes>data.typeTimer;
         const timers = data.timers;
+        if (typeTimer === "red" || typeTimer === "blue") {
+          this.solo = false;
+          this.rtime = timers.times[0][this.end];
+          this.btime = timers.times[1][this.end];
+        } else {
+          this.solo = true;
+          this.soloTime =
+            typeTimer === "warmup" || typeTimer === "takingBalls"
+              ? data.timers.oneMinuteTimer
+              : data.timers.tenMinutesTimer;
+        }
       }
       if (type === "protocol") {
         console.log(data);
@@ -100,7 +110,7 @@ export default class SideDisplay extends Vue {
 .main {
   color: #fff;
 }
-.protocol{
+.protocol {
   font-size: 4vh;
 }
 
