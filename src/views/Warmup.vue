@@ -5,7 +5,7 @@
         <v-card-text>
           <v-row>
             <v-col>
-              <timer v-model="time" :maxValue="60" />
+              <timer v-model="time" :maxValue="120" />
             </v-col>
           </v-row>
         </v-card-text>
