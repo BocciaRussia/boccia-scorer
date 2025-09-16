@@ -1,39 +1,42 @@
-# This is a basic workflow to help you get started with Actions
+name: Release (Electron)
 
-name: CI
-
-# Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    tags:
+      - 'v*'          # запускаем на пуш тега vX.Y.Z (рекомендуется)
+  workflow_dispatch:   # и вручную по кнопке
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+permissions:
+  contents: write      # нужно для создания релизов/загрузки ассетов
+
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    strategy:
-      matrix:
-        platform: [ windows-latest]
-    runs-on: ${{ matrix.platform }}
-    # Steps represent a sequence of tasks that will be executed as part of the job
+  build-and-release:
+    runs-on: windows-latest
     steps:
-      - uses: actions/setup-node@v2
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: '24.5.0'
+          cache: 'npm'
 
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      # Runs a single command using the runners shell
       - name: Install deps
-        run: npm install
-      - name: Build
-        run: npm run electron:build
+        run: npm ci
+        # если у тебя нет package-lock.json, замени на "npm install"
+
+      # ВАЖНО: electron-builder должен знать, что публиковать на GitHub
+      # либо через package.json -> build.publish = "github"
+      # либо флагом --publish always
+      - name: Build & Publish via electron-builder
+        run: npx electron-builder --publish always
         env:
-          GH_TOKEN: ${{secrets.GH_TOKEN}}        
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4.6.2
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      # Необязательно, но удобно: параллельно сохраним сборки как артефакт джоба
+      - name: Upload dist as artifact
+        uses: actions/upload-artifact@v4
         with:
-         name: ${{ matrix.platform }}-build
-         path: dist_electron
+          name: windows-build
+          path: dist/
