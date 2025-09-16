@@ -32,8 +32,8 @@ jobs:
       - name: Build Vue app
         run: npm run build
 
-      - name: Build Electron app
-        run: npm run electron:build
+      - name: Build Electron app (without publish)
+        run: npm run icons && vue-cli-service electron:build --mode production
 
       - name: Debug environment
         run: |
