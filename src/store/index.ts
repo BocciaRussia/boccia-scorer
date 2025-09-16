@@ -1,5 +1,5 @@
 import Player from "boccia-types/lib/Player";
-import { Match } from "boccia-types/lib/match";
+import { Match } from "boccia-types/lib/Match";
 import { GClass, gclass } from "boccia-types/lib/GClass";
 import Vue from "vue";
 import Vuex from "vuex";
