@@ -37,17 +37,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-      - name: Debug environment
-        run: |
-          echo "GITHUB_TOKEN exists: ${{ secrets.GITHUB_TOKEN != '' }}"
-          echo "GH_TOKEN will be set to: ${{ secrets.GITHUB_TOKEN }}"
-
-      - name: Publish via electron-builder
-        run: npx electron-builder --config electron-builder.json --publish always
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Необязательно, но удобно: параллельно сохраним сборки как артефакт джоба
+       # Необязательно, но удобно: параллельно сохраним сборки как артефакт джоба
       - name: Upload dist as artifact
         uses: actions/upload-artifact@v4
         with:
