@@ -1,0 +1,29 @@
+{
+  "appId": "com.boccia.scorer",
+  "productName": "Boccia Scorer",
+  "directories": {
+    "output": "dist_electron"
+  },
+  "files": [
+    "dist_electron/bundled/**/*",
+    "dist_electron/bundled/background.js"
+  ],
+  "extraResources": [
+    {
+      "from": "dist_electron/bundled",
+      "to": "bundled"
+    }
+  ],
+  "publish": {
+    "provider": "github"
+  },
+  "win": {
+    "target": "nsis"
+  },
+  "linux": {
+    "target": [
+      "AppImage",
+      "snap"
+    ]
+  }
+}

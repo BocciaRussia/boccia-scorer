@@ -29,8 +29,14 @@ jobs:
       # ВАЖНО: electron-builder должен знать, что публиковать на GitHub
       # либо через package.json -> build.publish = "github"
       # либо флагом --publish always
-      - name: Build & Publish via electron-builder
-        run: npx electron-builder --publish always
+      - name: Build Vue app
+        run: npm run build
+
+      - name: Build Electron app
+        run: npm run electron:build
+
+      - name: Publish via electron-builder
+        run: npx electron-builder --config electron-builder.json --publish always
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
