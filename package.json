@@ -1,6 +1,8 @@
 {
   "name": "boccia-scorer",
   "version": "0.1.0",
+  "description": "Boccia scoring application",
+  "author": "Boccia Team",
   "private": true,
   "scripts": {
     "icons": "node buildicon",
