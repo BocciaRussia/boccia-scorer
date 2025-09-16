@@ -33,7 +33,7 @@ jobs:
         run: npm run build
 
       - name: Build Electron app (without publish)
-        run: npm run icons && vue-cli-service electron:build --mode production
+        run: npm run icons && npx vue-cli-service electron:build --mode production
 
       - name: Debug environment
         run: |
