@@ -5,7 +5,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import { ipcRenderer } from "electron";
 import { TimerTypes } from "./TimerTypes";
-import { TIMECOOFS } from "./TIMECOOFS";
+import { ConfigManager } from "../utils/ConfigManager";
 
 Vue.use(Vuex);
 
@@ -76,18 +76,21 @@ export default new Vuex.Store({
       return match;
     },
     timers: ({ times, tenMinutesTimer, oneMinuteTimer, gclass }) => {
+      const configManager = ConfigManager.getInstance();
+      const classTime = configManager.getClassTime(gclass);
       return {
         times: times.map((playerTimes) => {
           return playerTimes.map((num) => {
-            return TIMECOOFS[gclass] - num;
+            return classTime - num;
           });
         }),
-        oneMinuteTimer: 60 - oneMinuteTimer,
+        oneMinuteTimer: configManager.getTakingBallsTime() - oneMinuteTimer,
         tenMinutesTimer: 600 - tenMinutesTimer,
       };
     },
     endTime: ({ gclass }) => {
-      return TIMECOOFS[gclass];
+      const configManager = ConfigManager.getInstance();
+      return configManager.getClassTime(gclass);
     },
     endTimes: ({ times, end, tieTimes }) => {
       if (end != "tie") return [times[0][end], times[1][end]];

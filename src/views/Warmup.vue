@@ -5,7 +5,7 @@
         <v-card-text>
           <v-row>
             <v-col>
-              <timer v-model="time" :maxValue="120" />
+              <timer v-model="time" :maxValue="warmupTime" />
             </v-col>
           </v-row>
         </v-card-text>
@@ -22,6 +22,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import Timer from "../components/Timer.vue";
+import { ConfigManager } from "../utils/ConfigManager";
 
 @Component({
   components: {
@@ -34,6 +35,11 @@ export default class Warmup extends Vue {
   }
   set time(value) {
     this.$store.dispatch("setTimerValue", { value, typeTimer: "warmup" });
+  }
+  
+  get warmupTime(): number {
+    const configManager = ConfigManager.getInstance();
+    return configManager.getWarmupTime();
   }
 }
 </script>

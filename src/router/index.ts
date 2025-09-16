@@ -4,6 +4,7 @@ import Home from '../views/Home.vue'
 import Warmup from '../views/Warmup.vue'
 import Ends from '../views/Ends.vue'
 import Finish from '../views/Finish.vue'
+import Settings from '../views/Settings.vue'
 
 Vue.use(VueRouter)
 
@@ -27,6 +28,11 @@ const routes: Array<RouteConfig> = [
     path: '/finish',
     name: 'Финиш',
     component: Finish
+  },
+  {
+    path: '/settings',
+    name: 'Настройки программы',
+    component: Settings
   }
 ]
 

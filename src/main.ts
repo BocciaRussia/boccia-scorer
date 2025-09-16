@@ -5,6 +5,7 @@ import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify';
 import utils from './utils'
+import { ConfigManager } from './utils/ConfigManager'
 
 Vue.config.productionTip = false
 Vue.prototype.$utils = utils;
@@ -21,9 +22,21 @@ Vue.use(VuetifyDialog, {
   }
 })
 
-new Vue({
-  router,
-  store,
-  vuetify,
-  render: h => h(second ? SideDisplay : App)
-}).$mount('#app')
+// Инициализируем конфиг менеджер
+ConfigManager.getInstance().initialize().then(() => {
+  new Vue({
+    router,
+    store,
+    vuetify,
+    render: h => h(second ? SideDisplay : App)
+  }).$mount('#app')
+}).catch(error => {
+  console.error('Ошибка инициализации конфига:', error)
+  // Запускаем приложение даже если конфиг не загрузился
+  new Vue({
+    router,
+    store,
+    vuetify,
+    render: h => h(second ? SideDisplay : App)
+  }).$mount('#app')
+})

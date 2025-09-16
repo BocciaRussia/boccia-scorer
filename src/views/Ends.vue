@@ -9,7 +9,7 @@
           <v-select :items="ends" v-model="end" label="Энд"></v-select>
         </v-card-text>
         <v-card-actions class="justify-center" v-if="end != 1">
-          <timer v-model="takingBalls" :maxValue="60" :title="'Сбор мячей'" />
+          <timer v-model="takingBalls" :maxValue="takingBallsTime" :title="'Сбор мячей'" />
         </v-card-actions>
         <v-card-actions class="justify-center" v-if="end != 1">
           <v-btn color="success" outlined @click="switchToTimers"
@@ -103,6 +103,7 @@ import { ServerAPI } from "@/ServerAPI";
 import { GClass } from "boccia-types/lib/GClass";
 import { Component, Vue } from "vue-property-decorator";
 import Timer from "../components/Timer.vue";
+import { ConfigManager } from "../utils/ConfigManager";
 
 @Component({
   components: {
@@ -171,6 +172,11 @@ export default class Ends extends Vue {
     console.log(this.rscore, this.bscore);
 
     return this.rscore > 0 || this.bscore > 0;
+  }
+  
+  get takingBallsTime(): number {
+    const configManager = ConfigManager.getInstance();
+    return configManager.getTakingBallsTime();
   }
   switchToTimers() {
     this.$store.dispatch("setTimerValue", {

@@ -1,6 +1,9 @@
 'use strict'
 
 import { app, protocol, BrowserWindow, ipcMain } from 'electron'
+import * as fs from 'fs'
+import * as path from 'path'
+import * as os from 'os'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 // import { } from "./ServerAPI/searchIp";
@@ -17,6 +20,32 @@ ipcMain.on('asynchronous-message', (event, type, params) => {
   console.log(event, type, params) // prints "ping"
   for (const window of windows) {
     window.webContents.send('asynchronous-message', type, params)
+  }
+})
+
+// IPC handlers for config management
+ipcMain.handle('get-documents-path', () => {
+  return path.join(os.homedir(), 'Documents')
+})
+
+ipcMain.handle('read-config', async (event, configPath) => {
+  try {
+    return fs.readFileSync(configPath, 'utf8')
+  } catch (error) {
+    throw new Error(`Не удалось прочитать конфиг: ${error}`)
+  }
+})
+
+ipcMain.handle('write-config', async (event, configPath, data) => {
+  try {
+    // Создаем директорию если не существует
+    const dir = path.dirname(configPath)
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true })
+    }
+    fs.writeFileSync(configPath, data, 'utf8')
+  } catch (error) {
+    throw new Error(`Не удалось сохранить конфиг: ${error}`)
   }
 })
 
