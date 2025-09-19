@@ -18,7 +18,7 @@
                   label="Имя игрока, который играет красными 🔴"
                   v-model="players[0]"
                   :items="itemPlayers"
-                  :rules="[checkClasses]"
+                  :rules="[checkClasses()]"
                   @change="playerChanged"
                 />
                 <v-select
@@ -193,7 +193,7 @@ export default class Home extends Vue {
     } catch (error) {
       this.$dialog.error({
         title: "Не всё заполнил",
-        text: error.message,
+        text: error instanceof Error ? error.message : "Неизвестная ошибка",
       });
       return;
     }
@@ -202,19 +202,11 @@ export default class Home extends Vue {
       text: `Вы уверены, что хотите начать матч между ${this.players[0].fullName} и ${this.players[1].fullName}? `,
     });
     if (!confirm) return;
-    const code = await this.$dialog.prompt({
-      title: "Введите код",
-    });
-    if (code === "2007") {
-      if (!this.offlineMode) {
+    if (!this.offlineMode) {
         ServerAPI.instance.startMatch();
       }
       this.$router.push("/warmup");
-    } else {
-      this.$dialog.error({
-        title: "Неверный код",
-      });
-    }
+
   }
   checkClasses() {
     if (!this.players[0] || !this.players[1]) return true;

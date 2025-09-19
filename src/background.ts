@@ -16,6 +16,9 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
 
+
+app.commandLine.appendSwitch('disable-setuid-sandbox');
+
 ipcMain.on('asynchronous-message', (event, type, params) => {
   console.log(event, type, params) // prints "ping"
   for (const window of windows) {
