@@ -1,8 +1,7 @@
 import axios from "axios";
 import os from 'os'
 import { Query, QueryParams } from "./Query";
-
-import Player from "boccia-types/lib/Player";
+import { Player } from "../types";
 import store from "@/store";
 
 let instance: ServerAPI | null = null;
@@ -21,30 +20,30 @@ export class ServerAPI {
     constructor() {
         this.searchServer()
     }
-    getPlayers(): Promise<Player[]> {
-        return <Promise<Player[]>><unknown>this.query('players', 'GET')
+    async getPlayers(): Promise<Player[]> {
+        const data = await this.query('players', 'GET') as Player[]
+        console.log(data)
+        return data
     }
-    startMatch() {
+    async startMatch() {
         console.log(store.getters.match);
-
-        return this.query('startMatch', 'POST', {
+        const data = await this.query('startMatch', 'POST', {
             match: store.getters.match
         })
-
+        console.log(data)
+        return data
     }
-    sendEnd() {
-
-        return this.query('sendEnd', 'POST', {
-            match: store.getters.match
-        })
-    }
-    sendMatch() {
-
-        return this.query('sendMatch', 'POST', {
+    async sendEnd() {
+        return await this.query('sendEnd', 'POST', {
             match: store.getters.match
         })
     }
-    private query(endPoint: string, method: 'GET' | 'POST', params?: QueryParams) {
+    async sendMatch() {
+        return await this.query('sendMatch', 'POST', {
+            match: store.getters.match
+        })
+    }
+    private async query(endPoint: string, method: 'GET' | 'POST', params?: QueryParams) {
         return new Promise((resolve, reject) => {
             if (this.server == null) {
                 this.queries.push(new Query(endPoint, method, params || {}, (error, data) => {
@@ -59,7 +58,6 @@ export class ServerAPI {
                     })).then(({ data }) => data))
                 else if (method === 'POST') {
                     resolve((axios.post(url, params)).then(({ data }) => data))
-
                 }
             }
         })
@@ -114,7 +112,7 @@ export class ServerAPI {
         try {
             const { data } = await axios.get(`${address}/check`, {
                 timeout: 200
-            })  
+            }) 
             if (data.toLowerCase() === 'checked') {
                 return true;
 
@@ -141,7 +139,7 @@ export class ServerAPI {
                 const res = await this.query(query.endPoint, query.method, query.query)
                 query.callback(null, res)
             } catch (error) {
-                query.callback(error, null)
+                query.callback(error as Error, null)
             }
         }
     }

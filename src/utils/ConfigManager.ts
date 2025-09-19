@@ -1,11 +1,20 @@
 import { ipcRenderer } from "electron";
-import { gclass } from "boccia-types/lib/GClass";
+
+// Реальные классы из API
+export type ApiGClass = 
+  | "BC1F" | "BC1M" 
+  | "BC2F" | "BC2M" 
+  | "BC3F" | "BC3M" 
+  | "BC4F" | "BC4M"
+  | "ПВС3" | "ПВС4" 
+  | "ТВС1/ВС2";
+
 
 export interface TimerConfig {
   warmupTime: number; // время разминки в секундах
   takingBallsTime: number; // время сбора мячей в секундах
   classTimes: {
-    [key in gclass]: number;
+    [key in ApiGClass]: number;
   };
 }
 
@@ -57,20 +66,17 @@ export class ConfigManager {
       warmupTime: 120, // 2 минуты
       takingBallsTime: 60, // 1 минута
       classTimes: {
-        BCM1: 270, // 4.5 минуты
-        BCW1: 270,
-        BCM2: 210, // 3.5 минуты
-        BCW2: 210,
-        BCM3: 360, // 6 минут
-        BCW3: 360,
-        BCM4: 210, // 3.5 минуты
-        BCW4: 210,
-        BCM5: 240, // 4 минуты
-        BCW5: 240,
-        "ПBC3": 420, // 7 минут
-        "ПBC4": 240, // 4 минуты
-        "ПBC5": 300, // 5 минут
-        "ТBC1/BC2": 300 // 5 минут
+        BC1F: 300, // 5 минут
+        BC1M: 300, // 5 минут
+        BC2F: 300, // 5 минут
+        BC2M: 300, // 5 минут
+        BC3F: 360, // 6 минут
+        BC3M: 360, // 6 минут
+        BC4F: 300, // 5 минут
+        BC4M: 300, // 5 минут
+        "ПВС3": 420, // 7 минут
+        "ПВС4": 300, // 5 минут
+        "ТВС1/ВС2": 300 // 5 минут
       }
     };
     
@@ -113,7 +119,7 @@ export class ConfigManager {
     return this.getConfig().takingBallsTime;
   }
 
-  public getClassTime(gclass: gclass): number {
+  public getClassTime(gclass: ApiGClass): number {
     return this.getConfig().classTimes[gclass];
   }
 
@@ -125,7 +131,7 @@ export class ConfigManager {
     await this.updateConfig({ takingBallsTime: time });
   }
 
-  public async setClassTime(gclass: gclass, time: number): Promise<void> {
+  public async setClassTime(gclass: ApiGClass, time: number): Promise<void> {
     const config = this.getConfig();
     await this.updateConfig({
       classTimes: {

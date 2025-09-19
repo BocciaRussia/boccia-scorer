@@ -25,19 +25,19 @@
                   label="Имя игрока, который играет синими 🔵"
                   v-model="players[1]"
                   :items="itemPlayers"
-                  :rules="[checkClasses]"
+                  :rules="[checkClasses()]"
                   @change="playerChanged"
                 />
               </div>
               <div v-else>
                 <v-text-field
                   label="Имя игрока, который играет красными 🔴"
-                  v-model="players[0].fullName"
+                  v-model="player0Name"
                   @change="nameChanged"
                 />
                 <v-text-field
                   label="Имя игрока, который играет синими 🔵"
-                  v-model="players[1].fullName"
+                  v-model="player1Name"
                   @change="nameChanged"
                 />
               </div>
@@ -85,9 +85,8 @@
 <script lang="ts">
 import { ServerAPI } from "../ServerAPI";
 import { Component, Vue } from "vue-property-decorator";
-import Player from "boccia-types/lib/Player";
 import { ipcRenderer } from "electron";
-import { GClass, gclass } from "boccia-types/lib/GClass";
+import { ApiGClass, Player } from "../types";
 
 @Component({
   components: {},
@@ -95,10 +94,10 @@ import { GClass, gclass } from "boccia-types/lib/GClass";
 export default class Home extends Vue {
   allPlayers: Player[] = [];
   players: [Player | null, Player | null] = this.$store.state.players;
-  get gameclass(): gclass | null {
+  get gameclass(): ApiGClass | null {
     return this.$store.state.gclass;
   }
-  set gameclass(value: gclass | null) {
+  set gameclass(value: ApiGClass | null) {
     this.$store.commit("setGClass", value);
   }
   get referee() {
@@ -148,7 +147,7 @@ export default class Home extends Vue {
       .filter((player) => player.gclass === this.gameclass)
       .map((player) => {
         return {
-          text: player.fullName,
+          text: `${player.name} (${player.gclass})`,
           value: player,
         };
       })
@@ -156,7 +155,33 @@ export default class Home extends Vue {
   }
 
   get itemClasses() {
-    return GClass.classes;
+    return [
+      "BC1F", "BC1M", "BC2F", "BC2M",
+      "BC3F", "BC3M", "BC4F", "BC4M",
+      "ПВС3", "ПВС4", "ТВС1/ВС2"
+    ];
+  }
+  get player0FullName() {
+    return this.players[0] ? `${this.players[0].name} (${this.players[0].gclass})` : "";
+  }
+  get player1FullName() {
+    return this.players[1] ? `${this.players[1].name} (${this.players[1].gclass})` : "";
+  }
+  get player0Name() {
+    return this.players[0] ? this.players[0].name : "";
+  }
+  set player0Name(value: string) {
+    if (this.players[0]) {
+      this.players[0].name = value;
+    }
+  }
+  get player1Name() {
+    return this.players[1] ? this.players[1].name : "";
+  }
+  set player1Name(value: string) {
+    if (this.players[1]) {
+      this.players[1].name = value;
+    }
   }
   mounted() {
     ServerAPI.instance
@@ -167,11 +192,12 @@ export default class Home extends Vue {
       })
       .catch((err) => {
         this.offlineMode = true;
-        this.players = [new Player(), new Player()];
+        this.players = [null, null];
       });
   }
-  nameChanged(name: string) {
-    this.$store;
+  nameChanged() {
+    // Обновляем store с именами игроков
+    this.$store.commit("setPlayers", [this.players[0], this.players[1]]);
   }
   playerChanged(player: Player) {
     // this.gameclass = player.gclass;
@@ -199,7 +225,7 @@ export default class Home extends Vue {
     }
     const confirm = await this.$dialog.confirm({
       title: "Начать матч?",
-      text: `Вы уверены, что хотите начать матч между ${this.players[0].fullName} и ${this.players[1].fullName}? `,
+      text: `Вы уверены, что хотите начать матч между ${this.player0FullName} и ${this.player1FullName}? `,
     });
     if (!confirm) return;
     if (!this.offlineMode) {

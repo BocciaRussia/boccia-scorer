@@ -1,20 +1,17 @@
-import { GClass, gclass } from "boccia-types/lib/GClass";
+import { ApiGClass } from "../utils/ConfigManager";
 
 export const TIMECOOFS: {
-    [key in gclass]: number
+    [key in ApiGClass]: number
 } = {
-    BCM1: (4.5)*60,
-    BCW1: (4.5)*60,
-    BCM2: (3.5)*60,
-    BCW2: (3.5)*60,
-    BCM3: 360,
-    BCW3: 360,
-    BCM4: (3.5)*60,
-    BCW4: (3.5)*60,
-    BCM5: 240,
-    BCW5: 240,
-    "ПBC3": (7)*60,
-    "ПBC4": (4)*60,
-    "ПBC5": 300,
-    "ТBC1/BC2": 300
+    BC1F: 300, // 5 минут
+    BC1M: 300, // 5 минут
+    BC2F: 300, // 5 минут
+    BC2M: 300, // 5 минут
+    BC3F: 360, // 6 минут
+    BC3M: 360, // 6 минут
+    BC4F: 300, // 5 минут
+    BC4M: 300, // 5 минут
+    "ПВС3": 420, // 7 минут
+    "ПВС4": 300, // 5 минут
+    "ТВС1/ВС2": 300 // 5 минут
 } as const;

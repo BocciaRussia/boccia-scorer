@@ -1,18 +1,16 @@
-import Player from "boccia-types/lib/Player";
-import { Match } from "boccia-types/lib/Match";
-import { GClass, gclass } from "boccia-types/lib/GClass";
 import Vue from "vue";
 import Vuex from "vuex";
 import { ipcRenderer } from "electron";
 import { TimerTypes } from "./TimerTypes";
-import { ConfigManager } from "../utils/ConfigManager";
+import { ConfigManager, ApiGClass } from "../utils/ConfigManager";
+import { Player, Match } from "../types";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
     players: <[Player | null, Player | null]>[null, null],
-    gclass: <gclass>GClass.classes[0],
+    gclass: <ApiGClass>"BC1M",
     times: <[number[], number[]]>[
       [0, 0, 0, 0],
       [0, 0, 0, 0],
@@ -106,8 +104,8 @@ export default new Vuex.Store({
       state.players[0] = players[0];
       state.players[1] = players[1];
     },
-    setGClass(state, gclass: gclass) {
-      if (gclass === "ТBC1/BC2") {
+    setGClass(state, gclass: ApiGClass) {
+      if (gclass === "ТВС1/ВС2") {
         if (state.score[0].length === 4) {
           state.score[0].push(0);
           state.score[1].push(0);
@@ -123,7 +121,7 @@ export default new Vuex.Store({
     },
     resetScore(state) {
       // state.score = [[], []]
-      for (let i = 0; i < (state.gclass === "ТBC1/BC2" ? 6 : 4); i++) {
+      for (let i = 0; i < (state.gclass === "ТВС1/ВС2" ? 6 : 4); i++) {
         Vue.set(state.score[0], i, 0);
         Vue.set(state.score[1], i, 0);
       }
@@ -131,7 +129,7 @@ export default new Vuex.Store({
     },
     resetTimer(state) {
       // state.score = [[], []]
-      for (let i = 0; i < (state.gclass === "ТBC1/BC2" ? 6 : 4); i++) {
+      for (let i = 0; i < (state.gclass === "ТВС1/ВС2" ? 6 : 4); i++) {
         Vue.set(state.times[0], i, 0);
         Vue.set(state.times[1], i, 0);
       }

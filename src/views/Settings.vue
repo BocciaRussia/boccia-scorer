@@ -101,7 +101,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { ConfigManager } from "../utils/ConfigManager";
-import { gclass } from "boccia-types/lib/GClass";
+import { ApiGClass } from "../utils/ConfigManager";
 
 @Component({})
 export default class Settings extends Vue {
@@ -110,7 +110,7 @@ export default class Settings extends Vue {
   
   warmupTime = 120;
   takingBallsTime = 60;
-  classTimes: { [key in gclass]: number } = {} as any;
+  classTimes: { [key in ApiGClass]: number } = {} as any;
   
   rules = {
     positive: (value: number) => value > 0 || "Значение должно быть больше 0"
@@ -156,7 +156,7 @@ export default class Settings extends Vue {
       const configManager = ConfigManager.getInstance();
       
       for (const [gclass, time] of Object.entries(this.classTimes)) {
-        await configManager.setClassTime(gclass as gclass, time);
+        await configManager.setClassTime(gclass as ApiGClass, time);
       }
       
       this.$dialog.notify.success("Настройки классов сохранены");
@@ -168,7 +168,7 @@ export default class Settings extends Vue {
     }
   }
 
-  updateClassTime(gclass: gclass, value: string) {
+  updateClassTime(gclass: ApiGClass, value: string) {
     const numValue = parseInt(value);
     if (!isNaN(numValue) && numValue > 0) {
       this.classTimes[gclass] = numValue;
