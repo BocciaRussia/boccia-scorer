@@ -46,13 +46,12 @@ export class ServerAPI {
     }
     private query(endPoint: string, method: 'GET' | 'POST', params?: QueryParams) {
         return new Promise((resolve, reject) => {
-
             if (this.server == null) {
                 this.queries.push(new Query(endPoint, method, params || {}, (error, data) => {
                     if (error) return reject(error)
                     resolve(data)
                 }))
-            } else {
+            } else { 
                 const url = this.server + '/' + endPoint;
                 if (method === 'GET')
                     resolve((axios.get(url, {
@@ -68,33 +67,55 @@ export class ServerAPI {
 
     private async searchServer() {
         const localIp = this.localIp;
-        const address = `http://127.0.0.1:${this.port}`;
+        const localhostAddress = `http://127.0.0.1:${this.port}`;
 
-        if (await this.checkReqeust(address)) {
-            this.server = address
+        // Сначала проверяем localhost
+        if (await this.checkReqeust(localhostAddress)) {
+            this.server = localhostAddress
+            console.log(`server found ${this.server}`)        
             this.startSendQueries();
             return
         }
-        this.server =  `http://192.168.1.2:${this.port}`;
-        this.startSendQueries();
-        return;
+
+        // Создаем массив промисов для параллельной проверки
         const searchStr = localIp.split('.').slice(0, -1).join('.') + '.'
+        const checkPromises: Promise<{ address: string, success: boolean }>[] = []
+        
         for (let i = 1; i < 255; i++) {
             const address = `http://${searchStr + i}:${this.port}`;
-            if (await this.checkReqeust(address)) {
-                this.server = address
-                this.startSendQueries();
-                return
-            }
+            checkPromises.push(
+                this.checkReqeust(address).then(success => ({ address, success }))
+            )
         }
+
+        // Ждем первый успешный результат
+        let found = false
+        const promises = checkPromises.map(promise => 
+            promise.then(result => {
+                if (result.success && !found) {
+                    found = true
+                    this.server = result.address
+                    console.log(`server found ${this.server}`)
+                    this.startSendQueries();
+                }
+                return result
+            })
+        )
+        
+        await Promise.allSettled(promises)
+        
+        if (found) {
+            return
+        }
+        
         this.rejectSaveQueries()
     }
     private async checkReqeust(address: string) {
         try {
             const { data } = await axios.get(`${address}/check`, {
                 timeout: 200
-            })
-            if (data === 'checked') {
+            })  
+            if (data.toLowerCase() === 'checked') {
                 return true;
 
             }
