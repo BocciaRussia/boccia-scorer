@@ -1,4 +1,4 @@
-// Типы игроков на основе данных из API
+// Типы игроков для оффлайн версии
 export interface Player {
   id: number;
   name: string;
@@ -7,9 +7,5 @@ export interface Player {
   gclass: string;
   team_gclass: string;
   region: string;
-}
-
-// Дополнительные поля для отображения
-export interface PlayerDisplay extends Player {
   fullName: string;
 }

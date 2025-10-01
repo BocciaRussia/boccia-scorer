@@ -31,9 +31,9 @@ import { ConfigManager } from "../utils/ConfigManager";
 })
 export default class Warmup extends Vue {
   get time(): number {
-    return this.$store.state.oneMinuteTimer;
+    return this.$store.state.warmupTimer;
   }
-  set time(value) {
+  set time(value: number) {
     this.$store.dispatch("setTimerValue", { value, typeTimer: "warmup" });
   }
   

@@ -99,11 +99,14 @@
 
 
 <script lang="ts">
-import { ServerAPI } from "@/ServerAPI";
-import { GClass } from "boccia-types/lib/GClass";
 import { Component, Vue } from "vue-property-decorator";
 import Timer from "../components/Timer.vue";
 import { ConfigManager } from "../utils/ConfigManager";
+
+// Локальное определение для оффлайн версии
+const GClass = {
+  classes: ["BC1F", "BC1M", "BC2F", "BC2M", "BC3F", "BC3M", "BC4F", "BC4M", "ПВС3", "ПВС4", "ТВС1/ВС2"]
+};
 
 @Component({
   components: {
@@ -158,7 +161,7 @@ export default class Ends extends Vue {
   }
   get ends() {
     const ends: (number | "tie")[] =
-      this.$store.state.gclass === GClass.classes[6]
+      this.$store.state.gclass === "ТВС1/ВС2"
         ? [1, 2, 3, 4, 5, 6]
         : [1, 2, 3, 4];
     if (
@@ -191,13 +194,12 @@ export default class Ends extends Vue {
       text: `Вы уверены в том, что счет энда: 🔴 ${this.rscore} - ${this.bscore} 🔵?`,
     });
     if (confirm) {
-      ServerAPI.instance.sendEnd();
+      // Убрано: отправка данных энда на сервер
       if (
-        this.end < (this.$store.state.gclass === "ТBC1/BC2" ? 6 : 4) &&
-        this.end != "tie"
+        typeof this.end === "number" && this.end < (this.$store.state.gclass === "ТBC1/BC2" ? 6 : 4)
       )
         this.end++;
-      if (this.end != "tie" && this.ends[this.end ] === "tie")
+      if (typeof this.end === "number" && this.ends[this.end] === "tie")
         this.end = "tie";
     }
   }

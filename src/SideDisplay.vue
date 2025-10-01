@@ -39,11 +39,11 @@
 
 
 <script lang="ts">
-import { Match } from "boccia-types/lib/Match";
 import { ipcRenderer } from "electron";
 import { Component, Vue } from "vue-property-decorator";
 import { TimerTypes } from "./store/TimerTypes";
 import Protocol from "./components/Protocol.vue";
+import { Match } from "./types/Match";
 
 @Component({
   components: {
@@ -88,7 +88,9 @@ export default class SideDisplay extends Vue {
         } else {
           this.solo = true;
           this.soloTime =
-            typeTimer === "warmup" || typeTimer === "takingBalls"
+            typeTimer === "warmup"
+              ? data.timers.warmupTimer
+              : typeTimer === "takingBalls"
               ? data.timers.oneMinuteTimer
               : data.timers.tenMinutesTimer;
         }
