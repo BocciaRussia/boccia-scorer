@@ -16,7 +16,6 @@
 </template>
 
 <script lang="ts">
-import { ServerAPI } from "@/ServerAPI";
 import { Component, Vue } from "vue-property-decorator";
 import Protocol from "../components/Protocol.vue";
 
@@ -42,7 +41,8 @@ export default class Finish extends Vue {
       title: "Введите код",
     });
     if (code === "2007") {
-      await ServerAPI.instance.sendMatch();
+      // Убрано: отправка данных матча на сервер
+      this.$dialog.notify.success("Матч завершен (оффлайн режим)");
     }
   }
 }

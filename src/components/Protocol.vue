@@ -70,8 +70,7 @@
  
  <script lang="ts">
 import utils from "@/utils";
-
-import { Match } from "boccia-types/src/Match";
+import { Match } from "../types/Match";
 import { Component, Prop, Vue } from "vue-property-decorator";
 @Component({})
 export default class Protocol extends Vue {

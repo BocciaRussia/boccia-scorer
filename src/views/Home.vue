@@ -83,7 +83,6 @@
 </template>
 
 <script lang="ts">
-import { ServerAPI } from "../ServerAPI";
 import { Component, Vue } from "vue-property-decorator";
 import { ipcRenderer } from "electron";
 import { ApiGClass, Player } from "../types";
@@ -141,7 +140,7 @@ export default class Home extends Vue {
     this.$store.commit("setSemi", value);
   }
 
-  offlineMode = false;
+  offlineMode = true;
   get itemPlayers() {
     return this.allPlayers
       .filter((player) => player.gclass === this.gameclass)
@@ -173,6 +172,8 @@ export default class Home extends Vue {
   set player0Name(value: string) {
     if (this.players[0]) {
       this.players[0].name = value;
+      this.players[0].fullName = value;
+      this.nameChanged();
     }
   }
   get player1Name() {
@@ -181,21 +182,44 @@ export default class Home extends Vue {
   set player1Name(value: string) {
     if (this.players[1]) {
       this.players[1].name = value;
+      this.players[1].fullName = value;
+      this.nameChanged();
     }
   }
   mounted() {
-    ServerAPI.instance
-      .getPlayers()
-      .then((players) => {
-        this.allPlayers = players;
-        this.offlineMode = false;
-      })
-      .catch((err) => {
-        this.offlineMode = true;
-        this.players = [null, null];
-      });
+    // Всегда работаем в оффлайн режиме
+    this.offlineMode = true;
+    this.players = [
+      { 
+        id: 1, 
+        name: "", 
+        gender: "male", 
+        birthday: "", 
+        gclass: this.gameclass || "BC1M", 
+        team_gclass: "", 
+        region: "",
+        fullName: ""
+      },
+      { 
+        id: 2, 
+        name: "", 
+        gender: "male", 
+        birthday: "", 
+        gclass: this.gameclass || "BC1M", 
+        team_gclass: "", 
+        region: "",
+        fullName: ""
+      }
+    ];
   }
   nameChanged() {
+    // Обновляем fullName при изменении имени
+    if (this.players[0]) {
+      this.players[0].fullName = this.players[0].name;
+    }
+    if (this.players[1]) {
+      this.players[1].fullName = this.players[1].name;
+    }
     // Обновляем store с именами игроков
     this.$store.commit("setPlayers", [this.players[0], this.players[1]]);
   }
@@ -228,10 +252,8 @@ export default class Home extends Vue {
       text: `Вы уверены, что хотите начать матч между ${this.player0FullName} и ${this.player1FullName}? `,
     });
     if (!confirm) return;
-    if (!this.offlineMode) {
-        ServerAPI.instance.startMatch();
-      }
-      this.$router.push("/warmup");
+    // Убрано: отправка данных матча на сервер
+    this.$router.push("/warmup");
 
   }
   checkClasses() {

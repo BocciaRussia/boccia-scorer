@@ -39,11 +39,11 @@
 
 
 <script lang="ts">
-import { Match } from "boccia-types/lib/Match";
 import { ipcRenderer } from "electron";
 import { Component, Vue } from "vue-property-decorator";
 import { TimerTypes } from "./store/TimerTypes";
 import Protocol from "./components/Protocol.vue";
+import { Match } from "./types/Match";
 
 @Component({
   components: {
