@@ -26,12 +26,7 @@ jobs:
         run: npm ci
         # если у тебя нет package-lock.json, замени на "npm install"
 
-      # ВАЖНО: electron-builder должен знать, что публиковать на GitHub
-      # либо через package.json -> build.publish = "github"
-      # либо флагом --publish always
-      - name: Build Vue app
-        run: npm run build
-
+      
       - name: Build Electron app (without publish)
         run: npm run icons && npx vue-cli-service electron:build --mode production
         env:
@@ -42,4 +37,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: dist/
+          path: dist_electron/
