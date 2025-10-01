@@ -26,6 +26,7 @@ export default new Vuex.Store({
     cortId: 1,
     end: <number | "tie">0,
     oneMinuteTimer: 0,
+    warmupTimer: 0,
     tenMinutesTimer: 0,
     group: "A",
     groupStep: true,
@@ -73,7 +74,7 @@ export default new Vuex.Store({
       };
       return match;
     },
-    timers: ({ times, tenMinutesTimer, oneMinuteTimer, gclass }) => {
+    timers: ({ times, tenMinutesTimer, oneMinuteTimer, warmupTimer, gclass }) => {
       const configManager = ConfigManager.getInstance();
       const classTime = configManager.getClassTime(gclass);
       return {
@@ -83,6 +84,7 @@ export default new Vuex.Store({
           });
         }),
         oneMinuteTimer: configManager.getTakingBallsTime() - oneMinuteTimer,
+        warmupTimer: configManager.getWarmupTime() - warmupTimer,
         tenMinutesTimer: 600 - tenMinutesTimer,
       };
     },
@@ -134,6 +136,7 @@ export default new Vuex.Store({
         Vue.set(state.times[1], i, 0);
       }
       state.oneMinuteTimer = 0;
+      state.warmupTimer = 0;
       state.tenMinutesTimer = 0;
       state.tieTimes = [0, 0];
     },
@@ -161,7 +164,7 @@ export default new Vuex.Store({
     ) {
       switch (typeTimer) {
         case "warmup":
-          state.oneMinuteTimer = value;
+          state.warmupTimer = value;
           break;
         case "technical":
           state.tenMinutesTimer = value;

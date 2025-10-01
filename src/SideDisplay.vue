@@ -88,7 +88,9 @@ export default class SideDisplay extends Vue {
         } else {
           this.solo = true;
           this.soloTime =
-            typeTimer === "warmup" || typeTimer === "takingBalls"
+            typeTimer === "warmup"
+              ? data.timers.warmupTimer
+              : typeTimer === "takingBalls"
               ? data.timers.oneMinuteTimer
               : data.timers.tenMinutesTimer;
         }
